@@ -33,19 +33,34 @@ async function run() {
 
     const menuCollection = client.db("Bistro_DB").collection("menu")
     const reviewsCollection = client.db('Bistro_DB').collection('reviews')
+    const cartsCollection = client.db('Bistro_DB').collection('carts')
 
 
-    app.get('/menu', async (req , res)=>{
+    app.get('/menu', async (req, res) => {
 
-        const cursor = menuCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
+      const cursor = menuCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
     })
-    app.get('/reviews', async (req , res)=>{
+    app.get('/reviews', async (req, res) => {
 
-        const cursor = reviewsCollection.find()
-        const result = await cursor.toArray()
-        res.send(result)
+      const cursor = reviewsCollection.find()
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+    app.post('/carts', async (req, res) => {
+      const cartData = req.body;
+      const result = await cartsCollection.insertOne(cartData);
+      res.send(result)
+    })
+    app.get('/carts', async (req, res) => {
+      const email = req.query?.email;
+      
+      
+      const query = {email:email}
+      const cursor = cartsCollection.find(query)
+      const result = await cursor.toArray()
+      res.send(result)
     })
 
 
@@ -71,10 +86,10 @@ run().catch(console.dir);
 
 
 
-app.get('/',(req , res)=>{
-    res.send("Bistro Server is running...")
+app.get('/', (req, res) => {
+  res.send("Bistro Server is running...")
 })
-app.listen(port,()=>{
-    console.log("Bistro server is running on port",port);
-    
+app.listen(port, () => {
+  console.log("Bistro server is running on port", port);
+
 })
