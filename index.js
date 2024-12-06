@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { MongoClient, ServerApiVersion } from 'mongodb'
+import { MongoClient, ObjectId, ServerApiVersion } from 'mongodb'
 
 dotenv.config()
 const port = process.env.PORT || 5000
@@ -34,8 +34,49 @@ async function run() {
     const menuCollection = client.db("Bistro_DB").collection("menu")
     const reviewsCollection = client.db('Bistro_DB').collection('reviews')
     const cartsCollection = client.db('Bistro_DB').collection('carts')
+    const usersCollection = client.db('Bistro_DB').collection('users')
 
+    app.post('/users', async (req, res) => {
+      const userData = req.body;
 
+      const query = {email:userData.email}
+      const isExistUser = await usersCollection.findOne(query)
+
+      if(isExistUser){
+        return res.send({message:"user already exist",insertedId:null})
+      }
+      const result = await usersCollection.insertOne(userData);
+      res.send(result)
+    })
+    app.get('/users', async (req, res) => {
+  
+      
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray()
+      res.send(result)
+    })
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id
+      
+      
+      const query = {_id: new ObjectId(id)}
+      const result = await usersCollection.deleteOne(query)
+      
+      res.send(result)
+    })
+    app.patch('/users/make-admin/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+
+      const updatedDoc = {
+        $set:{
+          role: "admin"
+        }
+      }
+      const result = await usersCollection.updateOne(filter,updatedDoc)
+      
+      res.send(result)
+    })
     app.get('/menu', async (req, res) => {
 
       const cursor = menuCollection.find()
@@ -60,6 +101,16 @@ async function run() {
       const query = {email:email}
       const cursor = cartsCollection.find(query)
       const result = await cursor.toArray()
+      res.send(result)
+    })
+
+    app.delete('/carts/:id', async (req, res) => {
+      const id = req.params.id
+      
+      
+      const query = {_id: new ObjectId(id)}
+      const result = await cartsCollection.deleteOne(query)
+      
       res.send(result)
     })
 
