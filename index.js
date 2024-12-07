@@ -177,6 +177,13 @@ async function run() {
       const result = await cursor.toArray()
       res.send(result)
     })
+    app.post('/menu',varifyToken,varifyAdmin, async (req, res) => {
+      const menuItem = req.body;
+      console.log(menuItem);
+      
+      const result = await menuCollection.insertOne(menuItem)
+      res.send(result)
+    })
     app.get('/reviews', async (req, res) => {
 
       const cursor = reviewsCollection.find()
