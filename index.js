@@ -179,9 +179,41 @@ async function run() {
     })
     app.post('/menu',varifyToken,varifyAdmin, async (req, res) => {
       const menuItem = req.body;
-      console.log(menuItem);
+      
       
       const result = await menuCollection.insertOne(menuItem)
+      res.send(result)
+    })
+    app.patch('/menu/:id',varifyToken,varifyAdmin, async (req, res) => {
+      const menuItem = req.body;
+      
+      const query = {_id: new ObjectId(req.params.id)}
+
+      const updatedDoc = {
+        $set: {
+          name: menuItem.name,
+          recipe: menuItem.recipe,
+          image: menuItem.image,
+          category:menuItem.category,
+          price: menuItem.price
+        }
+      }
+      
+      const result = await menuCollection.updateOne(query,updatedDoc)
+      res.send(result)
+    })
+    app.get('/menu/:id', async (req, res) => {
+      const menuId = req.params.id;
+      const query = {_id: new ObjectId(menuId)}
+      const result = await menuCollection.findOne(query)
+      console.log(result);
+      res.send(result)
+    })
+    app.delete('/menu/:id',varifyToken,varifyAdmin, async (req, res) => {
+      const menuId = req.params.id;
+      
+      const query = {_id: new ObjectId(menuId)}
+      const result = await menuCollection.deleteOne(query)
       res.send(result)
     })
     app.get('/reviews', async (req, res) => {
